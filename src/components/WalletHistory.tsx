@@ -10,8 +10,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
-import { claimCreatorUsdc } from '../lib/solana'
-import { returnNftToCreator } from '../lib/solana'
+import { claimCreatorUsdc, returnNftToCreator, refundUsdcToLoser } from '../lib/solana'
 
 // â”€â”€â”€ Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
@@ -477,3 +476,4 @@ export default function WalletHistory({
     </div>
   )
 }
+

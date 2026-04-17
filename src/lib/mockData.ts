@@ -1,4 +1,4 @@
-export interface Auction {
+﻿export interface Auction {
   id: string
   title: string
   description: string
@@ -8,7 +8,7 @@ export interface Auction {
   currency: 'SOL' | 'USDC'
   end_time: string
   seller_wallet: string
-  status: 'live' | 'ended' | 'settled'
+  status: 'live' | 'ended' | 'settled' | 'returned'
   winner_wallet: string | null
   winning_bid: number | null
   bid_count: number
@@ -45,7 +45,7 @@ function makeGradientUrl(id: number): string {
 }
 
 export const MOCK_AUCTIONS: Auction[] = [
-  // ── LIVE ──────────────────────────────────────────────────
+  // â”€â”€ LIVE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   {
     id: 'mock-madlads-001',
     title: 'Mad Lads #4471',
@@ -115,7 +115,7 @@ export const MOCK_AUCTIONS: Auction[] = [
     created_at: new Date(NOW - 1 * HOUR).toISOString(),
   },
 
-  // ── ENDED ─────────────────────────────────────────────────
+  // â”€â”€ ENDED â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   {
     id: 'mock-okaybears-005',
     title: 'Okay Bears #3318',
@@ -184,3 +184,4 @@ export const MOCK_MY_BIDS: Bid[] = [
     created_at: new Date(NOW - 2 * HOUR).toISOString(),
   },
 ]
+
