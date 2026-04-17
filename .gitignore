@@ -1,0 +1,16 @@
+﻿.env
+.env.local
+.env*.local
+node_modules/
+.next/
+out/
+id.json
+keypair.json
+wallet.json
+.DS_Store
+Thumbs.db
+*.log
+
+.env
+.env.local
+node_modules/
