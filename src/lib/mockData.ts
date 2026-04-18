@@ -1,4 +1,4 @@
-﻿export interface Auction {
+export interface Auction {
   id: string
   title: string
   description: string
@@ -45,7 +45,7 @@ function makeGradientUrl(id: number): string {
 }
 
 export const MOCK_AUCTIONS: Auction[] = [
-  // â”€â”€ LIVE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── LIVE ──────────────────────────────────────────────────
   {
     id: 'mock-madlads-001',
     title: 'Mad Lads #4471',
@@ -115,7 +115,7 @@ export const MOCK_AUCTIONS: Auction[] = [
     created_at: new Date(NOW - 1 * HOUR).toISOString(),
   },
 
-  // â”€â”€ ENDED â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── ENDED ─────────────────────────────────────────────────
   {
     id: 'mock-okaybears-005',
     title: 'Okay Bears #3318',
