@@ -1,9 +1,16 @@
 # ShadowBid
 
-**Private Sealed-Bid NFT Auctions on Solana**
+> Private sealed-bid NFT auctions on Solana. No sniping. No front-running. No information asymmetry.
 
-Built for the MagicBlock Hackathon — Category 2: Private DeFi
+[![Solana](https://img.shields.io/badge/Solana-Devnet-9945FF?style=flat&logo=solana&logoColor=white)](https://solana.com)
+[![React](https://img.shields.io/badge/React-18-61DAFB?style=flat&logo=react&logoColor=black)](https://react.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+[![Deno](https://img.shields.io/badge/Deno-Deploy-000000?style=flat&logo=deno&logoColor=white)](https://deno.com/deploy)
+[![Supabase](https://img.shields.io/badge/Supabase-Database-3ECF8E?style=flat&logo=supabase&logoColor=white)](https://supabase.com)
+[![MagicBlock](https://img.shields.io/badge/MagicBlock-TEE-FF6B35?style=flat)](https://magicblock.gg)
+[![X](https://img.shields.io/badge/@chiquast-000000?style=flat&logo=x&logoColor=white)](https://x.com/chiquast)
 
+---
 
 ## The Problem
 
@@ -13,42 +20,39 @@ Beyond sniping, full bid transparency creates information asymmetry. A bidder wh
 
 ShadowBid eliminates this entirely.
 
-
+---
 
 ## The Solution
 
 ShadowBid runs sealed-bid auctions where no bid amount is ever visible until the auction ends. Bids are processed inside MagicBlock's Trusted Execution Environment (TEE) so not even the platform operator can read them during the auction. When the timer hits zero, the contract settles atomically: the winner receives the NFT, the creator receives the winning USDC amount, and every losing bidder gets their USDC refunded on-chain.
 
-No sniping. No front-running. No information asymmetry. No trust required.
-
-
+---
 
 ## How It Works
 
+```
 Creator submits auction
-Backend mints NFT on Solana Devnet
-NFT sent directly to escrow wallet
-Auction listed with end time
+  └── Backend mints NFT on Solana Devnet
+  └── NFT sent directly to escrow wallet
+  └── Auction listed with end time
+
 Bidder submits bid
-USDC locked in escrow via MagicBlock Private Payments (TEE)
-Bid amount encrypted, hidden from all parties
-Dashboard shows bid count, not amounts
+  └── USDC locked in escrow via MagicBlock Private Payments (TEE)
+  └── Bid amount encrypted, hidden from all parties
+  └── Dashboard shows bid count, not amounts
+
 Auction timer ends
-Status changes to "Awaiting Settlement"
-[No bids]
-Creator clicks Settle
-NFT returned to creator wallet automatically
-[Bids exist]
-Seller clicks Settle
-Winner address shown with truncated wallet (e.g. Ab3x...Kp9z)
-Winner clicks Claim NFT
-NFT transferred from escrow to winner wallet
-USDC transferred from escrow to creator wallet
-All in one backend transaction
-Losers click Claim USDC
-USDC refunded from escrow to each loser wallet
+  └── Status changes to "Awaiting Settlement"
+  └── [No bids]  → Creator clicks Settle → NFT returned to creator wallet
+  └── [Bids exist] → Seller clicks Settle → Winner revealed
+      └── Winner clicks Claim NFT
+          └── NFT transferred from escrow to winner wallet
+          └── USDC transferred from escrow to creator wallet
+          └── All in one backend transaction
+      └── Losers click Claim USDC → USDC refunded from escrow
+```
 
-
+---
 
 ## Key Features
 
@@ -64,14 +68,14 @@ Every auction mints a real SPL token on Solana Devnet at creation time. The mint
 **USDC-only bidding**
 All bids are denominated in USDC on Solana Devnet (`Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr`). No SOL is involved in any bid flow.
 
-**Four claim flows, all on-chain**
+**Four on-chain claim flows**
 - Winner claims NFT (NFT transfer + USDC to creator settle in one transaction)
 - Loser claims USDC refund
 - Creator claims USDC from winning bid
 - Creator reclaims NFT when no bids placed
 
 **Truncated winner display**
-After settlement, the winner's wallet is shown as the first 4 and last 4 characters such as `Ab3x...Kp9z` so the result is publicly verifiable without exposing the full address until the winner acts.
+After settlement, the winner's wallet is shown as first 4 and last 4 characters (e.g. `Ab3x...Kp9z`) so the result is publicly verifiable without exposing the full address until the winner acts.
 
 ---
 
@@ -92,29 +96,34 @@ After settlement, the winner's wallet is shown as the first 4 and last 4 charact
 
 ## Architecture
 
+```
 Frontend (React + Vite)
-Wallet connect via wallet-adapter
-Bid submission via MagicBlock PER
-Reads auction/bid state from Supabase
-Calls Deno backend for all on-chain actions
+  Wallet connect via wallet-adapter
+  Bid submission via MagicBlock PER
+  Reads auction/bid state from Supabase
+  Calls Deno backend for all on-chain actions
+
 Deno Backend (main.ts)
-Holds escrow keypair, never exposed to frontend
-Signs and broadcasts all Solana transactions
-Endpoints:
-POST /api/mint-nft               Mint NFT, deposit to escrow
-POST /api/create-auction         Create auction record in Supabase
-POST /api/return-nft-to-creator  Return NFT when no bids
-POST /api/settle-winner          Update DB, reveal winner
-POST /api/claim-loser-usdc       Refund USDC to losing bidder
-GET  /api/creator-sales          Sales history by seller wallet
+  Holds escrow keypair, never exposed to frontend
+  Signs and broadcasts all Solana transactions
+  Endpoints:
+    POST /api/mint-nft               Mint NFT, deposit to escrow
+    POST /api/create-auction         Create auction record in Supabase
+    POST /api/return-nft-to-creator  Return NFT when no bids
+    POST /api/settle-winner          Update DB, reveal winner
+    POST /api/claim-loser-usdc       Refund USDC to losing bidder
+    GET  /api/creator-sales          Sales history by seller wallet
+
 Supabase
-Table: auctions  status, winner_wallet, winning_bid, seller_wallet, nft_mint
-Table: bids      claim_status, refunded, nft_claimed, nft_claimable, is_winner
+  Table: auctions  status, winner_wallet, winning_bid, seller_wallet, nft_mint
+  Table: bids      claim_status, refunded, nft_claimed, nft_claimable, is_winner
+
 MagicBlock TEE
-depositBidToER     Lock USDC in encrypted escrow during auction
-withdrawFromER     Release USDC on settlement
+  depositBidToER     Lock USDC in encrypted escrow during auction
+  withdrawFromER     Release USDC on settlement
+```
 
-
+---
 
 ## MagicBlock Integration
 
@@ -140,36 +149,42 @@ await withdrawFromER(auctionId, recipientWallet, amountUsdc)
 
 Bid amounts are never stored in plaintext anywhere including Supabase. Only the final settlement result is written on-chain.
 
+---
 
 ## Project Structure
-shbd/
-src/
-lib/
-magicblock.ts         MagicBlock PER + TEE integration
-escrow.ts             Bid placement, placeBid()
-solana.ts             Frontend Solana helpers, claim flows
-supabase.ts           Supabase client + typed queries
-rpc.ts                Solana RPC connection
-storage.ts            Auction and bid read/write helpers
-components/
-Header.tsx            Sticky header, wallet connect button
-AuctionCard.tsx       Auction listing card with hidden bid display
-AuctionDetailModal.tsx  Full auction detail, bid history
-BidModal.tsx          Bid submission flow
-CreateAuctionForm.tsx Seller auction creation
-DevnetSwitchModal.tsx Helper to switch wallet to devnet
-CountdownTimer.tsx    Live auction countdown
-ActivityFeed.tsx      Recent platform activity
-pages/
-ExplorePage.tsx       Browse all active auctions
-CreateAuctionPage.tsx Create new auction
-DashboardPage.tsx     My listings, my bids, claim buttons
-App.tsx
-main.tsx
-shadowbid-backend/
-main.ts     Deno backend, all 6 endpoints
-.env        ESCROW_PRIVATE_KEY, USDC_MINT, SOLANA_RPC, SUPABASE keys
 
+```
+shbd/
+  src/
+    lib/
+      magicblock.ts           MagicBlock PER + TEE integration
+      escrow.ts               Bid placement, placeBid()
+      solana.ts               Frontend Solana helpers, claim flows
+      supabase.ts             Supabase client + typed queries
+      rpc.ts                  Solana RPC connection
+      storage.ts              Auction and bid read/write helpers
+    components/
+      Header.tsx              Sticky header, wallet connect button
+      AuctionCard.tsx         Auction listing card with hidden bid display
+      AuctionDetailModal.tsx  Full auction detail, bid history
+      BidModal.tsx            Bid submission flow
+      CreateAuctionForm.tsx   Seller auction creation
+      DevnetSwitchModal.tsx   Helper to switch wallet to devnet
+      CountdownTimer.tsx      Live auction countdown
+      ActivityFeed.tsx        Recent platform activity
+    pages/
+      ExplorePage.tsx         Browse all active auctions
+      CreateAuctionPage.tsx   Create new auction
+      DashboardPage.tsx       My listings, my bids, claim buttons
+    App.tsx
+    main.tsx
+
+shadowbid-backend/
+  main.ts   Deno backend, all 6 endpoints
+  .env      ESCROW_PRIVATE_KEY, USDC_MINT, SOLANA_RPC, SUPABASE keys
+```
+
+---
 
 ## Local Setup
 
@@ -188,18 +203,18 @@ cd shbd
 npm install
 ```
 
-Create `.env.local` (UTF-8, no BOM):
+Create `.env.local`:
+```
 VITE_BACKEND_URL=http://localhost:8000
 VITE_SUPABASE_URL=your_supabase_url
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 VITE_MAGICBLOCK_API_KEY=your_magicblock_api_key
-
+```
 
 ```bash
 npm run dev
+# Opens at http://localhost:5173
 ```
-
-Opens at `http://localhost:5173`
 
 ### Backend
 
@@ -207,23 +222,25 @@ Opens at `http://localhost:5173`
 cd shadowbid-backend
 ```
 
-Create `.env` (UTF-8, no BOM):
+Create `.env`:
+```
 ESCROW_PRIVATE_KEY=your_escrow_keypair_bs58
 USDC_MINT=Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr
 SOLANA_RPC=https://api.devnet.solana.com
 SUPABASE_URL=your_supabase_url
 SUPABASE_SERVICE_KEY=your_supabase_service_key
+```
 
 ```bash
 deno run --allow-net --allow-env --allow-read main.ts
+# Backend runs at http://localhost:8000
 ```
-
-Backend runs at `http://localhost:8000`
 
 ### Get Devnet USDC
 
 Use the [Circle USDC Devnet Faucet](https://faucet.circle.com). Switch your wallet to Solana Devnet first.
 
+---
 
 ## Supabase Schema
 
@@ -244,6 +261,6 @@ per_commitment, per_salt, refund_tx, created_at
 
 ## Why This Matters
 
-Most NFT platforms treat privacy as a feature add-on. ShadowBid treats it as the foundation. By combining MagicBlock's TEE with an escrow-based settlement pattern, it demonstrates that sealed-bid auctions are not just theoretically possible on Solana — they are practical, deployable, and usable today.
+Most NFT platforms treat privacy as a feature add-on. ShadowBid treats it as the foundation. By combining MagicBlock's TEE with an escrow-based settlement pattern, it demonstrates that sealed-bid auctions are not just theoretically possible on Solana -- they are practical, deployable, and usable today.
 
 The same pattern extends beyond NFTs: procurement bids, grant funding rounds, token sales where price discovery should reflect true valuations. ShadowBid is a proof of concept for any auction where the process should be as trustless as the outcome.
